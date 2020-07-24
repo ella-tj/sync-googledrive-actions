@@ -1,0 +1,20 @@
+name: gclone
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: CONFIG
+      run: |
+        docker run -itd --name debian peng4740/debian /bin/bash
+        docker exec debian "gclone -v"
+        
+        

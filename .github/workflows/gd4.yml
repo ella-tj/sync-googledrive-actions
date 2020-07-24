@@ -1,0 +1,35 @@
+name: gd4
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: CONFIG
+      run: |
+        chmod +x rclone
+        chmod +x gclone
+        sudo mv rclone /usr/local/sbin/rclone
+        gpg --quiet --batch --yes --decrypt --passphrase="${{ secrets.LARGE_SECRET_PASSPHRASE }}" \
+        --output ./rclone.conf rclone.conf.gpg
+        gpg --quiet --batch --yes --decrypt --passphrase="${{ secrets.LARGE_SECRET_PASSPHRASE }}" \
+        --output ./AutoRclone.tar.gz AutoRclone.tar.gz.gpg
+        tar zxvf ./AutoRclone.tar.gz
+        sudo cp -r ./AutoRclone /root/AutoRclone
+
+        mkdir -p ~/.config/rclone/
+        mv rclone.conf ~/.config/rclone/rclone.conf
+
+    - name: SYNC
+      run: |
+        echo $PATH
+        rclone copy gd2:zc/ gd4:zc/ –drive-server-side-across-configs
+        
+        
